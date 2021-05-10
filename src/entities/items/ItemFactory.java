@@ -6,6 +6,9 @@ import entities.EnemyFactory;
 import java.io.IOException;
 import java.util.logging.*;
 
+/**
+ * Factory für die Erstellung von Items
+ */
 public class ItemFactory {
     private static final Logger LOGGER = Logger.getLogger(ItemFactory.class.getName());
 
@@ -27,6 +30,12 @@ public class ItemFactory {
         LOGGER.setLevel(Level.CONFIG);
     }
 
+    /**
+     * Erstellt eine neue Waffe
+     *
+     * @param weaponType Waffe aus dem Weapon Enum
+     * @return Die erstelle Waffe
+     */
     public Weapon getWeapon(Weapons weaponType) {
         Weapon weapon;
         switch ( weaponType ) {
@@ -46,6 +55,11 @@ public class ItemFactory {
 
     }
 
+    /**
+     * Erstellt ein neuer Trank her
+     *
+     * @return Der neue Trank
+     */
     public Potion getPotion() {
         return new Potion("Healing Potion", new Texture("assets/textures/items/flask_big_green.png"), 50);
     }

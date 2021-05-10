@@ -4,11 +4,16 @@ import entities.GameItem;
 
 import java.util.ArrayList;
 
+/**
+ * Bag Klasse für die Darstellung eines Tachenitems
+ * Eine Tasche kann nur Items eines Itemtypshaben
+ *
+ * @param <T> Itemtyp
+ */
 public class Bag<T extends GameItem> {
 
-    int capacity;
-
-    ArrayList<T> items;
+    private final ArrayList<T> items;
+    private int capacity;
 
     public Bag(int capacity) {
         items = new ArrayList<>();
@@ -39,6 +44,12 @@ public class Bag<T extends GameItem> {
         }
     }
 
+    /**
+     * Item an bestimmer Stelle geben
+     *
+     * @param index Position des Items in der Tasche
+     * @return Item
+     */
     public T getItem(int index) {
         if ( index < items.size() ) {
             return items.get(index);
@@ -46,6 +57,11 @@ public class Bag<T extends GameItem> {
         return null;
     }
 
+    /**
+     * Item aus der Tasche entfernen
+     *
+     * @param index Position des Items in der Tasche
+     */
     public void removeItem(int index) {
         if ( this.isEmpty() ) {
             System.out.println("Inventory empty");
@@ -61,6 +77,10 @@ public class Bag<T extends GameItem> {
         return this.items.isEmpty();
     }
 
+    /**
+     * @return
+     * @deprecated
+     */
     public String returnItemNames() {
         String temp_string = "";
         for ( T item : this.items ) {

@@ -35,6 +35,33 @@ public class EnemyFactory {
     }
 
     /**
+     * Generiert ein Array mit zufälligen Gegnern
+     *
+     * @param size Die Größe des zu erstellenden Arrays
+     * @return entitites.Enemy Array mit zufälligen Gegnern
+     */
+    public ArrayList<Enemy> getRandomEnemyArrayList(int size) {
+        LOGGER.info("GENERATING " + size + " RANDOM ENEMIES");
+
+        ArrayList<Enemy> randomEnemies = new ArrayList<>();
+        for ( int i = 0; i < size; i++ ) {
+            Enemy randomEnemy = getRandomEnemy();
+            randomEnemies.add(randomEnemy);
+        }
+        return randomEnemies;
+    }
+
+    /**
+     * Generiert einen zufälligen Gegner
+     */
+    public Enemy getRandomEnemy() {
+        Random random = new Random();
+        int randomNumber = random.nextInt(Enemies.values().length);
+        return getEnemy(Enemies.values()[randomNumber]);
+
+    }
+
+    /**
      * Generiert bestimmte Gegner
      *
      * @param enemy entitites.Enemy aus dem entitites.Enemies Eum
@@ -55,33 +82,6 @@ public class EnemyFactory {
 
         }
 
-    }
-
-    /**
-     * Generiert einen zufälligen Gegner
-     */
-    public Enemy getRandomEnemy() {
-        Random random = new Random();
-        int randomNumber = random.nextInt(Enemies.values().length);
-        return getEnemy(Enemies.values()[randomNumber]);
-
-    }
-
-    /**
-     * Generiert ein Array mit zufälligen Gegnern
-     *
-     * @param size Die Größe des zu erstellenden Arrays
-     * @return entitites.Enemy Array mit zufälligen Gegnern
-     */
-    public ArrayList<Enemy> getRandomEnemyArrayList(int size) {
-        LOGGER.info("GENERATING " + size + " RANDOM ENEMIES");
-
-        ArrayList<Enemy> randomEnemies = new ArrayList<>();
-        for ( int i = 0; i < size; i++ ) {
-            Enemy randomEnemy = getRandomEnemy();
-            randomEnemies.add(randomEnemy);
-        }
-        return randomEnemies;
     }
 
 }

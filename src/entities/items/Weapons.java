@@ -1,5 +1,8 @@
 package entities.items;
 
+/**
+ * Enum für die verschiedenen Waffen, die es im Spiel gibt.
+ */
 public enum Weapons {
     SWORD(0),
     AXE(1),

@@ -1,10 +1,15 @@
 package game;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.EntityController;
 import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.MainController;
 import de.fhbielefeld.pmdungeon.vorgaben.interfaces.IEntity;
 import entities.*;
 import entities.items.ItemFactory;
+import ui.ChestWindowManager;
+import ui.HeartIcon;
+import ui.InventoryWindowManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,16 +38,22 @@ public class GameController extends MainController {
     }
 
     private final ArrayList<IEntity> toRemove = new ArrayList<>();
+    public ArrayList<Projectile> projectiles;
     //Unser Held & Monster
     private Hero hero;
     private Chest chest;
+    private Trap trap;
     private ArrayList<Enemy> enemies;
     private game.FightController fightController;
-    private EnemyFactory enemyFactory;
-    private ItemFactory itemFactory;
+    private final EnemyFactory enemyFactory = new EnemyFactory();
+    private final ItemFactory itemFactory = new ItemFactory();
     private CollisionVisitor collisionVisitor;
     private boolean isFirstDungeon;
     private ArrayList<GameItem> items;
+    private InventoryWindowManager inventoryWindowManager;
+    private ChestWindowManager chestWindowManager;
+    private Label heroLvlLabel;
+
 
     public ArrayList<IEntity> getToRemove() {
         return toRemove;
@@ -57,14 +68,11 @@ public class GameController extends MainController {
         //Erstellung unseres Helden
         this.hero = new Hero();
 
-        this.enemyFactory = new EnemyFactory();
-        this.itemFactory = new ItemFactory();
-
         this.fightController = new game.FightController(this);
         this.collisionVisitor = new game.CollisionVisitor(hero, fightController, this);
 
-        this.enemies = new ArrayList<>();
         this.items = new ArrayList<>();
+        this.projectiles = new ArrayList<>();
 
         //Ab jetzt kümmert sich der EntityController um das aufrufen von Held.update
         entityController.addEntity(hero);
@@ -74,32 +82,19 @@ public class GameController extends MainController {
             entityController.addEntity(enemy);
         }
 
-        this.chest = new Chest();
-        entityController.addEntity(chest);
-
         //unsere Kamera soll sich immer auf den Helden zentrieren.
         camera.follow(hero);
 
         isFirstDungeon = true;
-        setupHeroItems();
-    }
 
-    /**
-     * Resettet das Spiel, den Held und die Gegner
-     */
-    public void reset() {
-        LOGGER.info("resetting game");
-        this.hero.setLevel(levelController.getDungeon());
-        this.hero.resetStats();
-        this.chest.setLevel(levelController.getDungeon());
-        resetEnemies();
-        resetItems();
-
-
+        hero.registerEntityController(entityController);
+        heroLvlLabel = textHUD.drawText("Hero EXP LV.", "assets/textures/ui/SuperLegendBoy-4w8Y.ttf", Color.WHITE, 18, 50, 50, 30, 30);
     }
 
     @Override
     protected void beginFrame() {
+
+        heroLvlLabel.setText("Hero EXP LVL." + hero.getExpLevel() + "\n " + hero.getCurrentExpPoints() + "/" + hero.getExpToNextLevel());
         if ( !toRemove.isEmpty() ) {
             for ( IEntity entity : toRemove ) {
                 entityController.removeEntity(entity);
@@ -114,8 +109,30 @@ public class GameController extends MainController {
 
         }
 
+        if ( hero.getCurrentProjectile() != null ) {
+            entityController.addEntity(hero.getCurrentProjectile());
+            projectiles.add(hero.getCurrentProjectile());
+            hero.setCurrentProjectile(null);
+        }
+
+
         isHeroCollisionCheck();
         isChestCollisionCheck();
+
+        chestWindowManager.update(chest);
+        /** Überprüfen wir, ob der Nutzer das Inventar ansehen will und zeigen es danach an */
+        if ( hero.getinventoryOpen() )
+            inventoryWindowManager.open();
+        else if ( !hero.getinventoryOpen() )
+            inventoryWindowManager.close();
+
+        /** Überprüfen wir, ob die Truhe geöffnet wurde*/
+        if ( chest.isChestOpen() )
+            chestWindowManager.open();
+        else if ( !chest.isChestOpen() ) {
+            chestWindowManager.close();
+        }
+
     }
 
     @Override
@@ -140,27 +157,37 @@ public class GameController extends MainController {
         //Beim Laden des nächsten Levels den Helden platzieren
         this.hero.setLevel(levelController.getDungeon());
 
-        for ( Enemy enemy : this.enemies ) {
-            entityController.removeEntity(enemy);
-        }
+        entityController.removeAll();
+        entityController.addEntity(hero);
+        /** UI im GUI*/
+        hud.addHudElement(new HeartIcon(hero));
+        inventoryWindowManager = new InventoryWindowManager(hero);
+        inventoryWindowManager.setup(hud);
 
-
-
-        entityController.removeEntity(this.chest);
         this.chest = new Chest();
         this.chest.setLevel(levelController.getDungeon());
+
+        chestWindowManager = new ChestWindowManager(chest);
+        chestWindowManager.setup(hud);
+
+        this.trap = new Trap();
+        this.trap.setLevel(levelController.getDungeon());
+
         entityController.addEntity(this.chest);
+        entityController.addEntity(this.trap);
 
         enemies = enemyFactory.getRandomEnemyArrayList(hero.getExpLevel() * ENEMIESPERHEROLEVEL);
-        for (Enemy enemy : enemies) {
-
+        for ( Enemy enemy : enemies ) {
             enemy.setLevel(levelController.getDungeon());
             entityController.addEntity(enemy);
-
         }
         resetItems();
 
         LOGGER.info("Level loaded");
+    }
+
+    private void resetItems() {
+        items.clear();
     }
 
     /**
@@ -171,21 +198,45 @@ public class GameController extends MainController {
             collisionVisitor.visit(entiy);
         }
         //Prüfen, ob sich die Gegner und der Held auf den gleichen Koordinaten befinden.
-        hero.accept(collisionVisitor);
+
 
     }
 
     private void isChestCollisionCheck() {
         //Prüfen, ob sich die Chest und der Held auf dem gleichen Koordinaten befinden.
-        if (Math.round(this.chest.getPosition().x) == Math.round(this.hero.getPosition().x) &&
-                Math.round(this.chest.getPosition().y) == Math.round(this.hero.getPosition().y)){
+        if ( Math.round(this.chest.getPosition().x) == Math.round(this.hero.getPosition().x) &&
+                Math.round(this.chest.getPosition().y) == Math.round(this.hero.getPosition().y) ) {
             //Wenn Hero sich zu der Chest bewegt
             this.chest.open(hero);
+        } else {
+            //Wenn Hero weggeht
+            this.chest.close();
         }
-        else {
-                //Wenn Hero weggeht
-                this.chest.close();
-            }
+
+    }
+
+    private void setupHeroItems() {
+        //this.hero.addToInventory(this.itemFactory.getWeapon(Weapons.SWORD));
+        //this.hero.addToInventory(this.itemFactory.getWeapon(Weapons.AXE));
+        //this.hero.addToInventory(this.itemFactory.getPotion());
+
+    }
+
+    public Trap getTrap() {
+        return trap;
+    }
+
+    /**
+     * Resettet das Spiel, den Held und die Gegner
+     */
+    public void reset() {
+        LOGGER.info("resetting game");
+        this.hero.setLevel(levelController.getDungeon());
+        this.hero.resetStats();
+        this.chest.setLevel(levelController.getDungeon());
+        resetEnemies();
+        resetItems();
+
 
     }
 
@@ -201,22 +252,6 @@ public class GameController extends MainController {
             enemy.setLevel(levelController.getDungeon());
             entityController.addEntity(enemy);
         }
-    }
-
-    private void resetItems() {
-
-        for ( GameItem item : items ) {
-            entityController.removeEntity(item);
-        }
-        items.clear();
-    }
-
-
-    private void setupHeroItems() {
-        //this.hero.addToInventory(this.itemFactory.getWeapon(Weapons.SWORD));
-        //this.hero.addToInventory(this.itemFactory.getWeapon(Weapons.AXE));
-        //this.hero.addToInventory(this.itemFactory.getPotion());
-
     }
 
     public EntityController getEntityController() {

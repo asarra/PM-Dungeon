@@ -17,11 +17,6 @@ public class Inventory {
         this.capacity = capacity;
     }
 
-    public int getSize() {
-        return this.items.size();
-    }
-
-
     public int getCapacity() {
         return capacity;
     }
@@ -34,10 +29,9 @@ public class Inventory {
         return this.getSize() == capacity;
     }
 
-    public boolean isEmpty() {
-        return this.items.isEmpty();
+    public int getSize() {
+        return this.items.size();
     }
-
 
     public void addItem(GameItem item) {
         if ( getSize() + 1 > this.capacity ) {
@@ -63,6 +57,10 @@ public class Inventory {
             }
         }
 
+    }
+
+    public boolean isEmpty() {
+        return this.items.isEmpty();
     }
 
     public void logInventory(Logger logger) {

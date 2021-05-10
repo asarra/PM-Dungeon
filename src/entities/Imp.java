@@ -14,6 +14,7 @@ import java.util.logging.*;
 public class Imp extends Enemy {
     private static final Logger LOGGER = Logger.getLogger(Imp.class.getName());
 
+
     static {
         LOGGER.setUseParentHandlers(false);
         ConsoleHandler consoleHandler = new ConsoleHandler();
@@ -32,8 +33,9 @@ public class Imp extends Enemy {
     }
 
     public Imp() {
-        health = 50.0f;
-        strength = 50.0f;
+        baseHealth = 50.0f;
+        baseStrength = 50.0f;
+        expDrop = 20;
 
         //ArrayLists für die Animationen erstellen
         List<Texture> idle = new ArrayList<>();

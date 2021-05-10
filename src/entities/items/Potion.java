@@ -5,9 +5,19 @@ import entities.GameItem;
 import entities.Hero;
 import interfaces.ItemVisitor;
 
+/**
+ * Klasse für die Darstellung von Tränke im Soiel
+ */
 public class Potion extends GameItem {
     int healAmount;
 
+    /**
+     * Konstruktor für den Trank
+     *
+     * @param name   Name des Tranks
+     * @param sprite Spritetextur für den Trank
+     * @param heal   Heilpunktemenge des Tranks
+     */
     public Potion(String name, Texture sprite, int heal) {
         super(name, sprite);
         this.healAmount = heal;
@@ -20,7 +30,7 @@ public class Potion extends GameItem {
 
     @Override
     public void onUse(Hero hero) {
-        hero.setHealth(hero.getHealth() + this.healAmount);
+        hero.setBaseHealth(hero.getBaseHealth() + this.healAmount);
         hero.removeEquipment(this);
     }
 

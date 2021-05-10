@@ -3,11 +3,15 @@ package entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
+import commands.FireBallCommand;
+import commands.TeleportCommand;
+import de.fhbielefeld.pmdungeon.vorgaben.game.Controller.EntityController;
 import de.fhbielefeld.pmdungeon.vorgaben.graphic.Animation;
 import de.fhbielefeld.pmdungeon.vorgaben.tools.Point;
 import game.CollisionVisitor;
 import game.Inventory;
 import game.InventoryLogger;
+import interfaces.GameCommand;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +22,7 @@ import java.util.logging.*;
  * Klasse zur Darstellung des Spielers
  * Diese Klasse besitzt Eigenschaften wie Lebenspunkte, Geschwindigkeit, Blickrichtung, und EXPLevel.
  */
-public class Hero extends entities.GameActor {
+public class Hero extends GameActor {
     private static final Logger LOGGER = Logger.getLogger(Hero.class.getName());
 
     static {
@@ -38,31 +42,40 @@ public class Hero extends entities.GameActor {
         LOGGER.addHandler(fileHandler);
     }
 
-    @SuppressWarnings("FieldCanBeLocal")
     private final int INVENTORYCAPACITY = 3;
     private final Inventory inventory;
     private final int EQUIPMENTCAPACITY = 2;
     private final InventoryLogger equipmentLogger;
+    private final int BASE_XP = 50;
+    private final double XP_FACTOR = 1.5;
+    private final ArrayList<GameCommand> commands;
     private String direction;
     private int expLevel = 1;
-    private float hitChance = 90.0f;
-    private ArrayList<entities.GameItem> equipment;
+    private float hitChance = 50.0f;
+    private int currentExpPoints = 0;
+    private int expToNextLevel = 50;
+
+    private ArrayList<GameItem> equipment;
     private boolean inventoryOpen;
     private boolean equipmentOpen;
     private boolean droppingItem;
-    private entities.GameItem itemToDrop;
+    private GameItem itemToDrop;
     private Point targetPoint;
     private boolean usingWeapon;
+    private float weaponDamage;
     private float attackRange;
+    private EntityController registeredEntityController;
+    private Projectile currentProjectile;
+
 
     /**
      * Konstruktor zur Initilisierung des Helden mit den Startwerten und Animationen
      */
     public Hero() {
         maxHealth = 700.0f;
-        health = 700.0f;
-        strength = 100.0f;
-        movementSpeed = 0.1f;
+        baseHealth = 700.0f;
+        baseStrength = 100.0f;
+        movementSpeed = 0.3f;
         inventory = new Inventory(INVENTORYCAPACITY);
         inventoryOpen = false;
         equipment = new ArrayList<>();
@@ -70,6 +83,8 @@ public class Hero extends entities.GameActor {
         targetPoint = null;
         attackRange = 1.0f;
         equipmentLogger = new InventoryLogger(LOGGER);
+        weaponDamage = 0;
+        commands = new ArrayList<>();
 
 
         //Blickrichtung nach rechts
@@ -107,6 +122,14 @@ public class Hero extends entities.GameActor {
         //Idle Animation als aktive Animation setzten
         this.activeAnimation = idleAnimation;
         LOGGER.log(Level.INFO, "Hero Character created");
+    }
+
+    public Projectile getCurrentProjectile() {
+        return currentProjectile;
+    }
+
+    public void setCurrentProjectile(Projectile currentProjectile) {
+        this.currentProjectile = currentProjectile;
     }
 
     public void accept(CollisionVisitor visitor) {
@@ -153,8 +176,8 @@ public class Hero extends entities.GameActor {
      */
     public void resetStats() {
         this.maxHealth = 700.0f;
-        this.health = maxHealth;
-        this.expLevel = 1;
+        this.baseHealth = maxHealth;
+        this.expLevel = 4;
 
     }
 
@@ -174,15 +197,15 @@ public class Hero extends entities.GameActor {
         this.hitChance = hitChance;
     }
 
-    public ArrayList<entities.GameItem> getEquipment() {
+    public ArrayList<GameItem> getEquipment() {
         return equipment;
     }
 
-    public void setEquipment(ArrayList<entities.GameItem> equipment) {
+    public void setEquipment(ArrayList<GameItem> equipment) {
         this.equipment = equipment;
     }
 
-    public void addToInventory(entities.GameItem item) {
+    public void addToInventory(GameItem item) {
         this.inventory.addItem(item);
     }
 
@@ -198,12 +221,7 @@ public class Hero extends entities.GameActor {
         this.direction = direction;
     }
 
-    public void addEquipment(entities.GameItem item) {
-        this.equipment.add(item);
-        item.onEquip(this);
-    }
-
-    public void removeEquipment(entities.GameItem item) {
+    public void removeEquipment(GameItem item) {
         item.onUnequip(this);
         equipment.remove(item);
     }
@@ -212,35 +230,26 @@ public class Hero extends entities.GameActor {
         return droppingItem;
     }
 
-    public entities.GameItem getItemToDrop() {
+    public GameItem getItemToDrop() {
         return itemToDrop;
     }
 
-    public void setItemToDrop(entities.GameItem itemToDrop) {
+    public void setItemToDrop(GameItem itemToDrop) {
         this.itemToDrop = itemToDrop;
     }
 
-    public void equipFromInventory(int index) {
-        if ( !inventory.isEmpty() ) {
-            if ( inventory.getItem(index) != null ) {
-                if ( equipment.size() == EQUIPMENTCAPACITY ) {
-                    inventory.addItem(equipment.get(0));
-                    equipment.get(0).onUnequip(this);
-                    equipment.remove(0);
+    public void registerEntityController(EntityController entityController) {
+        this.registeredEntityController = entityController;
+    }
 
-                }
-                addEquipment(inventory.getItem(index));
-                inventory.removeItem(index);
-            }
-
-
-        }
+    public EntityController getRegisteredEntityController() {
+        return registeredEntityController;
     }
 
     @Override
     public void update() {
         //zeichnet den Helden
-
+        //System.out.println(position.x + " " + position.y);
         this.draw();
         if ( equipment.size() > 0 ) {
 
@@ -329,7 +338,40 @@ public class Hero extends entities.GameActor {
                 }
             }
         }
+        if ( Gdx.input.isKeyJustPressed(Input.Keys.SPACE) ) {
+            if ( !commands.isEmpty() ) {
+                commands.get(0).execute();
+            }
+        }
+        if ( Gdx.input.isKeyJustPressed(Input.Keys.F) ) {
+            if ( commands.size() >= 2 ) {
+                commands.get(1).execute();
 
+            }
+
+            //FireBallCommand command = new FireBallCommand(this);
+            //command.execute();
+
+
+        }
+
+    }
+
+    public void equipFromInventory(int index) {
+        if ( !inventory.isEmpty() ) {
+            if ( inventory.getItem(index) != null ) {
+                if ( equipment.size() == EQUIPMENTCAPACITY ) {
+                    inventory.addItem(equipment.get(0));
+                    equipment.get(0).onUnequip(this);
+                    equipment.remove(0);
+
+                }
+                addEquipment(inventory.getItem(index));
+                inventory.removeItem(index);
+            }
+
+
+        }
     }
 
     public void dropItemFromInventoy(int index) {
@@ -359,18 +401,20 @@ public class Hero extends entities.GameActor {
         Point newPosition = new Point(this.position);
         //Wenn die Taste W gedrückt ist, bewege dich nach oben
         if ( Gdx.input.isKeyPressed(Input.Keys.W) ) {
+            direction = "up";
             newPosition.y += movementSpeed;
             LOGGER.fine("Hero pressed W, moving Up.");
         }
         //Wenn die Taste S gedrückt ist, bewege dich nach unten
         else if ( Gdx.input.isKeyPressed(Input.Keys.S) ) {
+            direction = "down";
             newPosition.y -= movementSpeed;
             LOGGER.fine("Hero pressed S, moving Down.");
         }
         //Wenn die Taste D gedrückt ist, bewege dich nach rechts
         else if ( Gdx.input.isKeyPressed(Input.Keys.D) ) {
-            this.direction = "right";
-            this.activeAnimation = this.rightAnimation;
+            direction = "right";
+            activeAnimation = this.rightAnimation;
             newPosition.x += movementSpeed;
             LOGGER.fine("Hero pressed D, moving Right.");
         }
@@ -397,8 +441,13 @@ public class Hero extends entities.GameActor {
 
     }
 
-    public void useItem(entities.GameItem item) {
+    public void useItem(GameItem item) {
         item.onUse(this);
+    }
+
+    public void addEquipment(GameItem item) {
+        this.equipment.add(item);
+        item.onEquip(this);
     }
 
     public boolean isUsingWeapon() {
@@ -415,5 +464,69 @@ public class Hero extends entities.GameActor {
 
     public void setAttackRange(float attackRange) {
         this.attackRange = attackRange;
+    }
+
+    public int getCurrentExpPoints() {
+        return currentExpPoints;
+    }
+
+    public float getWeaponDamage() {
+        return weaponDamage;
+    }
+
+    public void setWeaponDamage(float weaponDamage) {
+        this.weaponDamage = weaponDamage;
+    }
+
+    public int getExpToNextLevel() {
+        return expToNextLevel;
+    }
+
+    public void addExpPoints(int xpPoints) {
+        currentExpPoints += xpPoints;
+        if ( currentExpPoints >= expToNextLevel ) {
+            lvlUp();
+        }
+    }
+
+    public void lvlUp() {
+
+        currentExpPoints = 0;
+        expToNextLevel = (int) Math.round(BASE_XP * Math.pow(expLevel, XP_FACTOR));
+        int newExpLevel = expLevel + 1;
+        float newBaseStrenght = baseStrength + (baseStrength * 0.3f);
+        float newBaseHP = baseHealth + (baseHealth * 0.3f);
+        LOGGER.info("LEVEL UP" +
+                "Level: " + expLevel + " -> " + newExpLevel + "\n" +
+                "Base Strenght: " + baseStrength + " -> " + newBaseStrenght + "\n" +
+                "Base Health: " + baseHealth + "-> " + newBaseHP);
+        expLevel = newExpLevel;
+        baseHealth += newBaseStrenght;
+        baseHealth += newBaseHP;
+
+        if ( newExpLevel == 2 ) {
+            unlockAbility(new TeleportCommand(this));
+        }
+        if ( newExpLevel == 5 ) {
+            unlockAbility(new FireBallCommand(this));
+
+        }
+
+    }
+
+    private void unlockAbility(GameCommand command) {
+        commands.add(command);
+    }
+
+
+    /**
+     * getInventory() und getInventoryOpen() existieren, damit man das Inventarfenster bedienen zeigen kann
+     */
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public boolean getinventoryOpen() {
+        return this.inventoryOpen;
     }
 }

@@ -12,12 +12,7 @@ public abstract class Enemy extends GameActor {
      */
     protected Point targetPoint = null;
 
-    /**
-     * Gibt dem Gegner ein neuer zufälliger Punkt im Dungeon als Ziel
-     */
-    protected void resetTargetPoint() {
-        this.targetPoint = new Point(level.getRandomPointInDungeon());
-    }
+    protected int expDrop;
 
     /**
      * Prüft, ob der Gegner am Leben ist
@@ -25,7 +20,18 @@ public abstract class Enemy extends GameActor {
      * @return Ob Lebenspunkte des Gegners über 0 sind
      */
     public boolean isAlive() {
-        return this.health > 0;
+        return this.baseHealth > 0;
+    }
+
+    //Die Position des Gegners zurückgeben (sehr wichtigh für update())
+    @Override
+    public Point getPosition() {
+        if ( this.position != null ) {
+            return this.position;
+        } else {
+            this.findRandomPostion();
+            return this.position;
+        }
     }
 
     @Override
@@ -78,18 +84,23 @@ public abstract class Enemy extends GameActor {
 
     }
 
-    //Die Position des Gegners zurückgeben (sehr wichtigh für update())
-    @Override
-    public Point getPosition() {
-        if ( this.position != null ) {
-            return this.position;
-        } else {
-            this.findRandomPostion();
-            return this.position;
-        }
+    /**
+     * Gibt dem Gegner ein neuer zufälliger Punkt im Dungeon als Ziel
+     */
+    protected void resetTargetPoint() {
+        this.targetPoint = new Point(level.getRandomPointInDungeon());
     }
 
     public void accept(CollisionVisitor visitor) {
         visitor.visit(this);
+    }
+
+    /**
+     * Gibt die Exp Punkte, die man von diesem Gegner bekomt
+     *
+     * @return Erfahrungspunkte
+     */
+    public int getExpDrop() {
+        return expDrop;
     }
 }

@@ -13,6 +13,10 @@ import interfaces.ItemVisitor;
 
 import java.util.ArrayList;
 
+/**
+ * Klasse zur Darstellung von Items allgemein im Spiel
+ */
+
 public abstract class GameItem implements IEntity, IAnimatable {
     protected String name;
     protected Texture sprite;
@@ -23,7 +27,12 @@ public abstract class GameItem implements IEntity, IAnimatable {
     protected Point idlePoint;
     protected boolean dropped;
 
-
+    /**
+     * Konstruktor der GameItem Klasse
+     *
+     * @param name   Name des Items
+     * @param sprite Textur für das Item
+     */
     public GameItem(String name, Texture sprite) {
 
         this.name = name;
@@ -63,15 +72,6 @@ public abstract class GameItem implements IEntity, IAnimatable {
     }
 
     @Override
-    public Point getPosition() {
-        return this.position;
-    }
-
-    public void setPosition(Point position) {
-        this.position = position;
-    }
-
-    @Override
     public Animation getActiveAnimation() {
         return animation;
     }
@@ -81,9 +81,22 @@ public abstract class GameItem implements IEntity, IAnimatable {
         return sprite;
     }
 
+    public void setLevel(DungeonWorld level) {
+        this.level = level;
+    }
+
+    @Override
+    public Point getPosition() {
+        return this.position;
+    }
+
     public abstract void accept(ItemVisitor visitor);
 
     public abstract void onUse(Hero hero);
+
+    public void setPosition(Point position) {
+        this.position = position;
+    }
 
     public abstract void onEquip(Hero hero);
 
@@ -93,6 +106,20 @@ public abstract class GameItem implements IEntity, IAnimatable {
     public void update() {
         this.draw();
     }
+
+    @Override
+    public boolean deleteable() {
+        return false;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void accept(CollisionVisitor visitor) {
+        visitor.visit(this);
+    }
+
 
     @Override
     public void draw(float xOffset, float yOffset) {
@@ -115,22 +142,5 @@ public abstract class GameItem implements IEntity, IAnimatable {
         GameSetup.batch.end();
     }
 
-
-    @Override
-    public boolean deleteable() {
-        return false;
-    }
-
-    public void setLevel(DungeonWorld level) {
-        this.level = level;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void accept(CollisionVisitor visitor) {
-        visitor.visit(this);
-    }
 
 }

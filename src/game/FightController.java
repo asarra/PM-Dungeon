@@ -52,34 +52,36 @@ public class FightController {
         //Treffer landet erst, wenn die zufällige Zahl kleiner ist als die Trefferquote
         Random random = new Random();
         if ( random.nextFloat() * 100 <= hero.getHitChance() ) {
-            enemy.setHealth(enemy.getHealth() - hero.getStrength());
+            enemy.setBaseHealth(enemy.getBaseHealth() - hero.getBaseStrength());
 
             if ( enemy.isAlive() ) {
                 LOGGER.info(
                         "Hero hit enemy!\n" +
-                                "Hero: " + hero.getHealth() + "HP left \n " +
-                                enemy.getClass().getSimpleName() + ":" + enemy.getHealth() + "HP left.");
+                                "Hero: " + hero.getBaseHealth() + "HP left \n " +
+                                enemy.getClass().getSimpleName() + ":" + enemy.getBaseHealth() + "HP left.");
             }
 
 
             //Wenn der Gegner tot ist, diesen aus dem Spiel entfernen.
             if ( !enemy.isAlive() ) {
                 LOGGER.info("Hero killed the " + enemy.getClass().getSimpleName());
-                PARENTGAMECONTROLLER.getToRemove().add(enemy);
+                //PARENTGAMECONTROLLER.getToRemove().add(enemy);
                 //ENTITYCONTROLLER.removeEntity(enemy);
-
+                enemy.setdeletable(true);
                 LOGGER.info("Hero Health restored to " + hero.getMaxHealth());
                 //Lebenspunkte wiederherstellen
                 hero.restoreHealth();
+                LOGGER.info("Hero gained " + enemy.getExpDrop() + " Exp Points");
+                hero.addExpPoints(enemy.getExpDrop());
             }
         } else {
             //Sollte dre Treffer nicht getroffen haben, wird der Held vom Gegner angegriffen
-            if ( hero.getHealth() >= 0 ) {
-                hero.setHealth(hero.getHealth() - enemy.getStrength());
+            if ( hero.getBaseHealth() >= 0 ) {
+                hero.setBaseHealth(hero.getBaseHealth() - enemy.getBaseStrength());
                 LOGGER.info(
                         "Hero was hit by Monster!\n" +
-                                "Hero: " + hero.getHealth() + "HP left \n" +
-                                enemy.getClass().getName() + ":" + enemy.getHealth() + "HP left.");
+                                "Hero: " + hero.getBaseHealth() + "HP left \n" +
+                                enemy.getClass().getName() + ":" + enemy.getBaseHealth() + "HP left.");
             }
             //Wenn sich der Gegner rechts vom Held befindet
             if ( enemy.getPosition().x >= hero.getPosition().x ) {
@@ -100,7 +102,7 @@ public class FightController {
 
             }
             //Wenn der Held stirbt, das Spiel neustarten
-            if ( hero.getHealth() < 0 ) {
+            if ( hero.getBaseHealth() < 0 ) {
                 LOGGER.info("GAME OVER");
                 PARENTGAMECONTROLLER.reset();
             }

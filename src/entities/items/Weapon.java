@@ -8,8 +8,11 @@ import entities.GameItem;
 import entities.Hero;
 import interfaces.ItemVisitor;
 
+/**
+ * Wepon Klasse zur Darstellung von Waffen im Spiel
+ */
 public class Weapon extends GameItem {
-    private final int damage;
+    private final float damage;
     private final float attackRange;
     private final int MAX_DURABILITY = 100;
     private boolean attacking;
@@ -43,25 +46,17 @@ public class Weapon extends GameItem {
 
     }
 
-    public float getAttackRange() {
-        return attackRange;
-    }
-
     @Override
     public void onEquip(Hero hero) {
-        hero.setStrength(hero.getStrength() + damage);
+        hero.setWeaponDamage(hero.getBaseStrength() + damage);
         hero.setAttackRange(hero.getAttackRange() + attackRange);
 
     }
 
     @Override
     public void onUnequip(Hero hero) {
-        hero.setStrength(hero.getStrength() - damage);
+        hero.setBaseStrength(hero.getBaseStrength() - damage);
         hero.setAttackRange(hero.getAttackRange() - attackRange);
-    }
-
-    public int getDamage() {
-        return damage;
     }
 
     @Override
@@ -97,6 +92,23 @@ public class Weapon extends GameItem {
         GameSetup.batch.end();
     }
 
+    /**
+     * Gibt die Range der Waffe zurück
+     *
+     * @return
+     */
+    public float getAttackRange() {
+        return attackRange;
+    }
+
+    public float getDamage() {
+        return damage;
+    }
+
+    @Override
+    public void draw() {
+        draw(-0.75f, -0.75f);
+    }
 }
 
 

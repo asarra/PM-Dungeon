@@ -25,6 +25,7 @@ public abstract class GameActor implements IAnimatable, IEntity {
     protected Animation idleLeftAnimation;
     protected Animation rightAnimation;
     protected Animation leftAnimation;
+    protected boolean isDeletable = false;
 
     // STATS ----------------------------------------------------
 
@@ -35,11 +36,11 @@ public abstract class GameActor implements IAnimatable, IEntity {
     /**
      * Die derzeitige Lenbenspunkte des GameActors
      */
-    protected float health;
+    protected float baseHealth;
     /**
      * Die Kampfstärtke des GameActors
      */
-    protected float strength;
+    protected float baseStrength;
     /**
      * Die Geschwindigkeit des GameActors
      */
@@ -49,7 +50,7 @@ public abstract class GameActor implements IAnimatable, IEntity {
      * Stellt alle Lebenspunkte zum MaxHealth wieder her
      */
     public void restoreHealth() {
-        this.health = maxHealth;
+        this.baseHealth = maxHealth;
     }
 
     // BASIC GETTERS AND SETTERS ----------------------------------------------------
@@ -61,20 +62,20 @@ public abstract class GameActor implements IAnimatable, IEntity {
         this.maxHealth = health;
     }
 
-    public float getHealth() {
-        return health;
+    public float getBaseHealth() {
+        return baseHealth;
     }
 
-    public void setHealth(float health) {
-        this.health = health;
+    public void setBaseHealth(float baseHealth) {
+        this.baseHealth = baseHealth;
     }
 
-    public float getStrength() {
-        return strength;
+    public float getBaseStrength() {
+        return baseStrength;
     }
 
-    public void setStrength(float strength) {
-        this.strength = strength;
+    public void setBaseStrength(float baseStrength) {
+        this.baseStrength = baseStrength;
     }
 
     public float getMovementSpeed() {
@@ -85,6 +86,42 @@ public abstract class GameActor implements IAnimatable, IEntity {
         this.movementSpeed = movementSpeed;
     }
     //END OF BASIC GETTERS AND SETTERS------------------------------------------------------
+
+    /**
+     * Gibt die derzeitige Animation des Charakters zurück
+     *
+     * @return Die aktuelle Charackter Animation
+     */
+    @Override
+    public Animation getActiveAnimation() {
+        return this.activeAnimation;
+    }
+
+    @Override
+    public Point getPosition() {
+        return this.position;
+    }
+
+    public void setPosition(Point position) {
+        this.position = position;
+
+    }
+
+    @Override
+    public abstract void update();
+
+    @Override
+    public boolean deleteable() {
+        return isDeletable;
+    }
+
+    public void setdeletable(boolean isDeletable) {
+        this.isDeletable = isDeletable;
+    }
+
+    public DungeonWorld getLevel() {
+        return level;
+    }
 
     /**
      * Lässt einen Charakter in eine zufällige Position des Dungeons spawnen
@@ -104,26 +141,12 @@ public abstract class GameActor implements IAnimatable, IEntity {
     }
 
     /**
-     * Gibt die derzeitige Animation des Charakters zurück
+     * Gibt dem GameActor eine neue Position
      *
-     * @return Die aktuelle Charackter Animation
+     * @param x x- Koordinate
+     * @param y y- Koordinate
      */
-    @Override
-    public Animation getActiveAnimation() {
-        return this.activeAnimation;
+    public void setPosition(float x, float y) {
+        this.position = new Point(x, y);
     }
-
-    @Override
-    public Point getPosition() {
-        return this.position;
-    }
-
-
-    @Override
-    public boolean deleteable() {
-        return false;
-    }
-
-    @Override
-    public abstract void update();
 }

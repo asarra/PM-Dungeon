@@ -29,8 +29,9 @@ public class Monster extends Enemy {
     }
 
     public Monster() {
-        health = 100.0f;
-        strength = 100.0f;
+        baseHealth = 100.0f;
+        baseStrength = 100.0f;
+        expDrop = 50;
 
         //ArrayLists für die Animationen erstellen
         List<Texture> idle = new ArrayList<>();
