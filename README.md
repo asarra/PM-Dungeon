@@ -12,4 +12,5 @@ The project's SDK version is 16.
 Here's the game in action:
 
 ![hero1](https://user-images.githubusercontent.com/20255127/117625393-4661bd80-b176-11eb-97c1-b189942d935e.PNG)
+
 ![hero2](https://user-images.githubusercontent.com/20255127/117625406-48c41780-b176-11eb-9cea-8c2067ec8ec2.PNG)
