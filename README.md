@@ -18,7 +18,7 @@ Drop Item = Q, then "number_of_current_pos_of_item_in_inv"\
 A = Go left\
 S = Go down\
 W = Go up\
-D = Go right\
+D = Go right
 
 ## Here's the game in action:
 
