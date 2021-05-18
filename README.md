@@ -8,15 +8,15 @@ Therefore, you won't see the commits of my teammates.
 This game is about a hero who slashes his way through dungeon monsters and traps while gaining EXP, potions and useful weapons on the way.
 
 ## Instructions
-Accept quests = J__
-Show accepted quests = O__
-Show inventory = I__
-Equip items = E, then 1 or 2 (depending on which hand should hold the given item)__
-Drop Item = Q, then "number_of_current_pos_of_item_in_inv"__
-A = Go left__
-S = Go down__
-W = Go up__
-D = Go right__
+Accept quests = J\
+Show accepted quests = O\
+Show inventory = I\
+Equip items = E, then 1 or 2 (depending on which hand should hold the given item)\
+Drop Item = Q, then "number_of_current_pos_of_item_in_inv"\
+A = Go left\
+S = Go down\
+W = Go up\
+D = Go right\
 
 The project's SDK version is 16.
 
