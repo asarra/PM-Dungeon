@@ -7,6 +7,8 @@ Therefore, you won't see the commits of my teammates.
 
 This game is about a hero who slashes his way through dungeon monsters and traps while gaining EXP, potions and useful weapons on the way.
 
+The project's SDK version is 16.
+
 ## Instructions
 Accept quests = J\
 Show accepted quests = O\
@@ -17,8 +19,6 @@ A = Go left\
 S = Go down\
 W = Go up\
 D = Go right\
-
-The project's SDK version is 16.
 
 ## Here's the game in action:
 
