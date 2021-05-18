@@ -2,9 +2,12 @@ package entities.items;
 
 import com.badlogic.gdx.graphics.Texture;
 import entities.EnemyFactory;
-
 import java.io.IOException;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * Factory für die Erstellung von Items
@@ -23,7 +26,7 @@ public class ItemFactory {
             fileHandler = new FileHandler("logs/" + EnemyFactory.class.getName() + ".log");
             fileHandler.setFormatter(new SimpleFormatter());
             fileHandler.setLevel(Level.FINE);
-        } catch ( IOException e ) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         LOGGER.addHandler(fileHandler);
@@ -38,7 +41,7 @@ public class ItemFactory {
      */
     public Weapon getWeapon(Weapons weaponType) {
         Weapon weapon;
-        switch ( weaponType ) {
+        switch (weaponType) {
             case SWORD -> weapon = new Weapon("Sword", new Texture("assets/textures/items/weapon_regular_sword.png"), 40, 1.0f);
             case AXE -> weapon = new Weapon("Axe", new Texture("assets/textures/items/weapon_axe.png"), 70, 0.5f);
             case HAMMER -> weapon = new Weapon("Hammer", new Texture("assets/textures/items/weapon_hammer.png"), 70, 0.8f);

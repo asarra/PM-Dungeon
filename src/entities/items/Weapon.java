@@ -8,107 +8,106 @@ import entities.GameItem;
 import entities.Hero;
 import interfaces.ItemVisitor;
 
-/**
- * Wepon Klasse zur Darstellung von Waffen im Spiel
- */
+/** Wepon Klasse zur Darstellung von Waffen im Spiel */
 public class Weapon extends GameItem {
-    private final float damage;
-    private final float attackRange;
-    private final int MAX_DURABILITY = 100;
-    private boolean attacking;
-    private float rotation = 0;
-    private int durability = 100;
+  private final float damage;
+  private final float attackRange;
+  private final int MAX_DURABILITY = 100;
+  private boolean attacking;
+  private float rotation = 0;
+  private int durability = 100;
 
+  public Weapon(String name, Texture sprite, int damage, float attackRange) {
+    super(name, sprite);
+    this.damage = damage;
+    this.attackRange = attackRange;
+  }
 
-    public Weapon(String name, Texture sprite, int damage, float attackRange) {
-        super(name, sprite);
-        this.damage = damage;
-        this.attackRange = attackRange;
+  public Weapon(String name, int damage, float attackRange) {
+
+    this.name = name;
+    this.damage = damage;
+    this.attackRange = attackRange;
+  }
+
+  @Override
+  public void accept(ItemVisitor visitor) {
+    visitor.visit(this);
+  }
+
+  @Override
+  public void onUse(Hero hero) {
+
+    if (!attacking) {
+      attacking = true;
+      hero.setUsingWeapon(true);
     }
 
-    @Override
-    public void accept(ItemVisitor visitor) {
-        visitor.visit(this);
+    durability -= 10;
+    if (durability <= 0) {
+      hero.removeEquipment(this);
+    }
+  }
+
+  @Override
+  public void onEquip(Hero hero) {
+    hero.setWeaponDamage(hero.getBaseStrength() + damage);
+    hero.setAttackRange(hero.getAttackRange() + attackRange);
+  }
+
+  @Override
+  public void onUnequip(Hero hero) {
+    hero.setBaseStrength(hero.getBaseStrength() - damage);
+    hero.setAttackRange(hero.getAttackRange() - attackRange);
+  }
+
+  @Override
+  public void draw(float xOffset, float yOffset) {
+
+    Texture texture = this.getTexture();
+    Sprite sprite = new Sprite(texture);
+    // this will resize the texture. this is setuped for the textures used in the thesis
+    sprite.setSize(texture.getWidth() * 0.05f, texture.getHeight() * 0.05f);
+    sprite.setOrigin(sprite.getWidth() / 2.0f, sprite.getHeight() / 2.0f);
+    sprite.setRotation(rotation);
+
+    rotation = sprite.getRotation();
+
+    // where to draw the sprite
+    Point position = this.getPosition();
+    sprite.setPosition(position.x + xOffset, position.y + yOffset);
+    if (attacking) {
+      rotation -= 15;
+    } else if (rotation < 0) {
+      rotation += 15;
+    }
+    if (attacking && rotation <= -90) {
+      attacking = false;
     }
 
-    @Override
-    public void onUse(Hero hero) {
+    // need to be called before drawing
+    GameSetup.batch.begin();
+    // draw sprite
+    sprite.draw(GameSetup.batch);
+    // need to be called after drawing
+    GameSetup.batch.end();
+  }
 
-        if ( !attacking ) {
-            attacking = true;
-            hero.setUsingWeapon(true);
-        }
+  /**
+   * Gibt die Range der Waffe zurück
+   *
+   * @return
+   */
+  public float getAttackRange() {
+    return attackRange;
+  }
 
-        durability -= 10;
-        if ( durability <= 0 ) {
-            hero.removeEquipment(this);
-        }
+  public float getDamage() {
+    return damage;
+  }
 
-    }
-
-    @Override
-    public void onEquip(Hero hero) {
-        hero.setWeaponDamage(hero.getBaseStrength() + damage);
-        hero.setAttackRange(hero.getAttackRange() + attackRange);
-
-    }
-
-    @Override
-    public void onUnequip(Hero hero) {
-        hero.setBaseStrength(hero.getBaseStrength() - damage);
-        hero.setAttackRange(hero.getAttackRange() - attackRange);
-    }
-
-    @Override
-    public void draw(float xOffset, float yOffset) {
-
-        Texture texture = this.getTexture();
-        Sprite sprite = new Sprite(texture);
-        //this will resize the texture. this is setuped for the textures used in the thesis
-        sprite.setSize(texture.getWidth() * 0.05f, texture.getHeight() * 0.05f);
-        sprite.setOrigin(sprite.getWidth() / 2.0f, sprite.getHeight() / 2.0f);
-        sprite.setRotation(rotation);
-
-        rotation = sprite.getRotation();
-
-        //where to draw the sprite
-        Point position = this.getPosition();
-        sprite.setPosition(position.x + xOffset, position.y + yOffset);
-        if ( attacking ) {
-            rotation -= 15;
-        } else if ( rotation < 0 ) {
-            rotation += 15;
-        }
-        if ( attacking && rotation <= -90 ) {
-            attacking = false;
-        }
-
-
-        //need to be called before drawing
-        GameSetup.batch.begin();
-        //draw sprite
-        sprite.draw(GameSetup.batch);
-        //need to be called after drawing
-        GameSetup.batch.end();
-    }
-
-    /**
-     * Gibt die Range der Waffe zurück
-     *
-     * @return
-     */
-    public float getAttackRange() {
-        return attackRange;
-    }
-
-    public float getDamage() {
-        return damage;
-    }
-
-    @Override
-    public void draw() {
-        draw(-0.75f, -0.75f);
-    }
+  @Override
+  public void draw() {
+    draw(-0.75f, -0.75f);
+  }
 }
-
-

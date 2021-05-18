@@ -7,13 +7,13 @@ import entities.Hero;
 import entities.Projectile;
 
 public interface EntityVisitor {
-    void visit(IEntity entity);
+  void visit(IEntity entity);
 
-    void visit(Hero hero);
+  void visit(Hero hero);
 
-    void visit(Enemy enemy);
+  void visit(Enemy enemy);
 
-    void visit(GameItem item);
+  void visit(GameItem item);
 
-    void visit(Projectile projectile);
+  void visit(Projectile projectile);
 }

@@ -5,9 +5,9 @@ import entities.items.Spell;
 import entities.items.Weapon;
 
 public interface ItemVisitor {
-    void visit(Weapon weapon);
+  void visit(Weapon weapon);
 
-    void visit(Potion potion);
+  void visit(Potion potion);
 
-    void visit(Spell spell);
+  void visit(Spell spell);
 }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>C:/Users/yusay/Desktop/Programmiermethoden Git/src/quests</OriginalElement>
+  <nodes>
+    <node x="10.5" y="329.0">quests.KillQuest</node>
+    <node x="359.5" y="351.0">quests.ExpLevelQuest</node>
+    <node x="259.5" y="527.0">entities.DungeonQuest</node>
+    <node x="194.0" y="0.0">quests.GameQuest</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="entities.DungeonQuest" target="quests.GameQuest" relationship="TO_ONE">
+      <point x="73.125" y="-106.5" />
+      <point x="430.125" y="506.0" />
+      <point x="729.0" y="506.0" />
+      <point x="729.0" y="299.0" />
+      <point x="465.6666666666667" y="299.0" />
+      <point x="108.66666666666669" y="139.5" />
+    </edge>
+    <edge source="entities.DungeonQuest" target="quests.GameQuest" relationship="DEPENDENCY">
+      <point x="-73.125" y="-106.5" />
+      <point x="283.875" y="506.0" />
+      <point x="0.0" y="506.0" />
+      <point x="0.0" y="299.0" />
+      <point x="248.33333333333331" y="299.0" />
+      <point x="-108.66666666666669" y="139.5" />
+    </edge>
+    <edge source="entities.DungeonQuest" target="quests.KillQuest" relationship="CREATE">
+      <point x="-24.375" y="-106.5" />
+      <point x="332.625" y="496.0" />
+      <point x="175.0" y="496.0" />
+      <point x="0.0" y="73.0" />
+    </edge>
+    <edge source="quests.KillQuest" target="quests.GameQuest" relationship="GENERALIZATION">
+      <point x="0.0" y="-73.0" />
+      <point x="175.0" y="309.0" />
+      <point x="357.0" y="309.0" />
+      <point x="0.0" y="139.5" />
+    </edge>
+    <edge source="quests.ExpLevelQuest" target="quests.GameQuest" relationship="GENERALIZATION">
+      <point x="0.0" y="-51.0" />
+      <point x="539.0" y="309.0" />
+      <point x="357.0" y="309.0" />
+      <point x="0.0" y="139.5" />
+    </edge>
+    <edge source="entities.DungeonQuest" target="quests.ExpLevelQuest" relationship="CREATE">
+      <point x="24.375" y="-106.5" />
+      <point x="381.375" y="496.0" />
+      <point x="539.0" y="496.0" />
+      <point x="0.0" y="51.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="0.5409090909090909" showDependencies="true" x="353.99999999999994" y="437.1344537815126" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Fields</Category>
+    <Category>Inner Classes</Category>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

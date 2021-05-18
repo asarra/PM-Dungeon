@@ -3,7 +3,11 @@ package entities;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * Klasse zum generieren der Gegner.
@@ -23,7 +27,7 @@ public class EnemyFactory {
             fileHandler = new FileHandler("logs/" + EnemyFactory.class.getName() + ".log");
             fileHandler.setFormatter(new SimpleFormatter());
             fileHandler.setLevel(Level.FINE);
-        } catch ( IOException e ) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         LOGGER.addHandler(fileHandler);
@@ -44,7 +48,7 @@ public class EnemyFactory {
         LOGGER.info("GENERATING " + size + " RANDOM ENEMIES");
 
         ArrayList<Enemy> randomEnemies = new ArrayList<>();
-        for ( int i = 0; i < size; i++ ) {
+        for (int i = 0; i < size; i++) {
             Enemy randomEnemy = getRandomEnemy();
             randomEnemies.add(randomEnemy);
         }
@@ -68,7 +72,7 @@ public class EnemyFactory {
      * @see Enemies
      */
     public Enemy getEnemy(Enemies enemy) {
-        switch ( enemy ) {
+        switch (enemy) {
             case IMP -> {
                 return new Imp();
 
